@@ -3422,27 +3422,42 @@ function getQuoteFormScript(productsData) {
         }
         
         function updateLineItemsData() {
+            console.log('--- updateLineItemsData() called ---');
             const rows = document.querySelectorAll('#lineItemsBody tr');
+            console.log('Number of rows in table:', rows.length);
             const lineItems = [];
-            
-            rows.forEach(row => {
+
+            rows.forEach((row, index) => {
                 const productSelect = row.querySelector('[data-field="product_id"]');
-                const productId = productSelect.value;
-                const productText = productSelect.options[productSelect.selectedIndex].text;
-                
+                const productId = productSelect ? productSelect.value : null;
+                const productText = productSelect && productSelect.selectedIndex >= 0 ? productSelect.options[productSelect.selectedIndex].text : '';
+
+                console.log(`Row ${index}: productId=${productId}, productText=${productText}`);
+
                 if (productId) {
-                    lineItems.push({
+                    const item = {
                         product_id: productId,
                         product_name: productText,
                         description: row.querySelector('[data-field="description"]').value,
                         quantity: row.querySelector('[data-field="quantity"]').value,
                         unit_price: row.querySelector('[data-field="unit_price"]').value,
                         total: row.querySelector('.line-total').textContent
-                    });
+                    };
+                    console.log(`Adding line item ${index}:`, item);
+                    lineItems.push(item);
+                } else {
+                    console.log(`Row ${index}: Skipping - no product selected`);
                 }
             });
-            
-            document.getElementById('line_items').value = JSON.stringify(lineItems);
+
+            console.log('Total line items collected:', lineItems.length);
+            console.log('Line items data:', lineItems);
+
+            const jsonString = JSON.stringify(lineItems);
+            console.log('JSON string to save:', jsonString);
+
+            document.getElementById('line_items').value = jsonString;
+            console.log('Hidden field updated successfully');
         }
         
         // Auto-calculate Valid Until date (max 2 weeks from quote date)
@@ -3603,27 +3618,42 @@ function getEditQuoteFormScript(productsData, existingLineItemsData) {
         }
         
         function updateLineItemsData() {
+            console.log('--- updateLineItemsData() called ---');
             const rows = document.querySelectorAll('#lineItemsBody tr');
+            console.log('Number of rows in table:', rows.length);
             const lineItems = [];
-            
-            rows.forEach(row => {
+
+            rows.forEach((row, index) => {
                 const productSelect = row.querySelector('[data-field="product_id"]');
-                const productId = productSelect.value;
-                const productText = productSelect.options[productSelect.selectedIndex].text;
-                
+                const productId = productSelect ? productSelect.value : null;
+                const productText = productSelect && productSelect.selectedIndex >= 0 ? productSelect.options[productSelect.selectedIndex].text : '';
+
+                console.log(`Row ${index}: productId=${productId}, productText=${productText}`);
+
                 if (productId) {
-                    lineItems.push({
+                    const item = {
                         product_id: productId,
                         product_name: productText,
                         description: row.querySelector('[data-field="description"]').value,
                         quantity: row.querySelector('[data-field="quantity"]').value,
                         unit_price: row.querySelector('[data-field="unit_price"]').value,
                         total: row.querySelector('.line-total').textContent
-                    });
+                    };
+                    console.log(`Adding line item ${index}:`, item);
+                    lineItems.push(item);
+                } else {
+                    console.log(`Row ${index}: Skipping - no product selected`);
                 }
             });
-            
-            document.getElementById('line_items').value = JSON.stringify(lineItems);
+
+            console.log('Total line items collected:', lineItems.length);
+            console.log('Line items data:', lineItems);
+
+            const jsonString = JSON.stringify(lineItems);
+            console.log('JSON string to save:', jsonString);
+
+            document.getElementById('line_items').value = jsonString;
+            console.log('Hidden field updated successfully');
         }
         
         // Auto-calculate Valid Until date (max 2 weeks from quote date)
@@ -3643,11 +3673,22 @@ function getEditQuoteFormScript(productsData, existingLineItemsData) {
 
         // Load existing line items
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== EDIT QUOTE PAGE LOADED ===');
+            console.log('Existing line items from server:', existingLineItems);
+
             if (existingLineItems && existingLineItems.length > 0) {
-                existingLineItems.forEach(item => {
+                console.log('Loading', existingLineItems.length, 'existing line items');
+                existingLineItems.forEach((item, index) => {
+                    console.log('Loading item', index, ':', item);
                     addLineItem(item);
                 });
+                // CRITICAL: Update hidden field after loading all items
+                setTimeout(() => {
+                    updateLineItemsData();
+                    console.log('Initial line_items hidden field value:', document.getElementById('line_items').value);
+                }, 100);
             } else {
+                console.log('No existing line items, adding empty row');
                 addLineItem();
             }
 
@@ -3661,15 +3702,25 @@ function getEditQuoteFormScript(productsData, existingLineItemsData) {
             const form = document.getElementById('quoteForm');
             if (form) {
                 form.addEventListener('submit', function(e) {
+                    console.log('=== FORM SUBMITTING ===');
+
                     // Update line items data before submitting
                     updateLineItemsData();
 
-                    const lineItems = JSON.parse(document.getElementById('line_items').value || '[]');
+                    const lineItemsValue = document.getElementById('line_items').value;
+                    console.log('Line items hidden field value:', lineItemsValue);
+
+                    const lineItems = JSON.parse(lineItemsValue || '[]');
+                    console.log('Parsed line items:', lineItems);
+                    console.log('Number of line items:', lineItems.length);
+
                     if (lineItems.length === 0) {
                         e.preventDefault();
                         alert('Please add at least one line item.');
                         return false;
                     }
+
+                    console.log('Form validation passed, submitting...');
                 });
             }
         });
