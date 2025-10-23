@@ -566,14 +566,19 @@ async function handleUpdateQuote(request, env) {
     const url = new URL(request.url);
     const quoteId = url.pathname.split('/').pop();
     const formData = await request.formData();
-    
+
+    // Log the request for debugging
+    console.log('Updating quote:', quoteId);
+    console.log('Line items from form:', formData.get('line_items'));
+
     const quotes = await getCSVData(env, STORAGE_KEYS.QUOTES);
     const quoteIndex = quotes.findIndex(q => q.id === quoteId);
-    
+
     if (quoteIndex === -1) {
+      console.error('Quote not found:', quoteId);
       return new Response('Quote not found', { status: 404 });
     }
-    
+
     // Update quote with form data
     const updatedQuote = {
       ...quotes[quoteIndex],
@@ -587,20 +592,24 @@ async function handleUpdateQuote(request, env) {
       tax: formData.get('tax'),
       total: formData.get('total'),
       status: formData.get('status') || quotes[quoteIndex].status,
-      lead_time: formData.get('lead_time') || 'TBD',
+      lead_time: formData.get('lead_time') || '',
       line_items: formData.get('line_items')
     };
-    
+
+    console.log('Updated quote data:', JSON.stringify(updatedQuote));
+
     quotes[quoteIndex] = updatedQuote;
     await saveCSVData(env, STORAGE_KEYS.QUOTES, quotes, CSV_HEADERS.QUOTES);
-    
+
+    console.log('Quote saved successfully');
+
     return new Response(null, {
       status: 302,
       headers: { 'Location': `/quotes/view/${quoteId}` }
     });
   } catch (error) {
     console.error('Error updating quote:', error);
-    return new Response('Error updating quote', { status: 500 });
+    return new Response(`Error updating quote: ${error.message}`, { status: 500 });
   }
 }
 
@@ -3469,6 +3478,9 @@ function getQuoteFormScript(productsData) {
             const form = document.getElementById('quoteForm') || document.getElementById('invoiceForm');
             if (form) {
                 form.addEventListener('submit', function(e) {
+                    // Update line items data before submitting
+                    updateLineItemsData();
+
                     const lineItems = JSON.parse(document.getElementById('line_items').value || '[]');
                     if (lineItems.length === 0) {
                         e.preventDefault();
@@ -3649,6 +3661,9 @@ function getEditQuoteFormScript(productsData, existingLineItemsData) {
             const form = document.getElementById('quoteForm');
             if (form) {
                 form.addEventListener('submit', function(e) {
+                    // Update line items data before submitting
+                    updateLineItemsData();
+
                     const lineItems = JSON.parse(document.getElementById('line_items').value || '[]');
                     if (lineItems.length === 0) {
                         e.preventDefault();
