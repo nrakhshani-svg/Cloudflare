@@ -101,9 +101,9 @@ export default {
         // API Routes
         case path === '/api/quotes' && request.method === 'POST':
           return await handleCreateQuote(request, env);
-        
-        // RESTORED: Quote update API
-        case path.startsWith('/api/quotes/') && request.method === 'PUT':
+
+        // RESTORED: Quote update API (accepts both PUT and POST)
+        case path.startsWith('/api/quotes/') && (request.method === 'PUT' || request.method === 'POST'):
           return await handleUpdateQuote(request, env);
         
         case path === '/api/invoices' && request.method === 'POST':
