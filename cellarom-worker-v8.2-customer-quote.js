@@ -3432,7 +3432,7 @@ function getQuoteFormScript(productsData) {
                 const productId = productSelect ? productSelect.value : null;
                 const productText = productSelect && productSelect.selectedIndex >= 0 ? productSelect.options[productSelect.selectedIndex].text : '';
 
-                console.log(`Row ${index}: productId=${productId}, productText=${productText}`);
+                console.log('Row ' + index + ': productId=' + productId + ', productText=' + productText);
 
                 if (productId) {
                     const item = {
@@ -3443,10 +3443,10 @@ function getQuoteFormScript(productsData) {
                         unit_price: row.querySelector('[data-field="unit_price"]').value,
                         total: row.querySelector('.line-total').textContent
                     };
-                    console.log(`Adding line item ${index}:`, item);
+                    console.log('Adding line item ' + index + ':', item);
                     lineItems.push(item);
                 } else {
-                    console.log(`Row ${index}: Skipping - no product selected`);
+                    console.log('Row ' + index + ': Skipping - no product selected');
                 }
             });
 
@@ -3628,7 +3628,7 @@ function getEditQuoteFormScript(productsData, existingLineItemsData) {
                 const productId = productSelect ? productSelect.value : null;
                 const productText = productSelect && productSelect.selectedIndex >= 0 ? productSelect.options[productSelect.selectedIndex].text : '';
 
-                console.log(`Row ${index}: productId=${productId}, productText=${productText}`);
+                console.log('Row ' + index + ': productId=' + productId + ', productText=' + productText);
 
                 if (productId) {
                     const item = {
@@ -3639,10 +3639,10 @@ function getEditQuoteFormScript(productsData, existingLineItemsData) {
                         unit_price: row.querySelector('[data-field="unit_price"]').value,
                         total: row.querySelector('.line-total').textContent
                     };
-                    console.log(`Adding line item ${index}:`, item);
+                    console.log('Adding line item ' + index + ':', item);
                     lineItems.push(item);
                 } else {
-                    console.log(`Row ${index}: Skipping - no product selected`);
+                    console.log('Row ' + index + ': Skipping - no product selected');
                 }
             });
 
